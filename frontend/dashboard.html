@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Training log — Ironhouse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header on-dark">
+    <div class="wrap">
+      <a class="brand" href="index.html">Ironhouse</a>
+      <span class="who" id="who"></span>
+      <button class="btn" id="logout" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="wrap dash">
+    <section class="panel" aria-labelledby="log-title">
+      <h2 id="log-title">Log a lift</h2>
+      <form id="lift-form" class="log-form" novalidate>
+        <p class="error" id="lift-error" role="alert"></p>
+        <div class="field">
+          <label for="exercise">Exercise</label>
+          <select id="exercise" name="exercise_id" required></select>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="weight">Weight (kg)</label>
+            <input id="weight" name="weight_kg" type="number" inputmode="decimal" min="0.5" max="1000" step="0.5" required>
+          </div>
+          <div class="field">
+            <label for="reps">Reps</label>
+            <input id="reps" name="reps" type="number" inputmode="numeric" min="1" max="200" step="1" required>
+          </div>
+          <div class="field">
+            <label for="sets">Sets</label>
+            <input id="sets" name="sets" type="number" inputmode="numeric" min="1" max="50" step="1" value="1" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input id="date" name="performed_on" type="date" required>
+        </div>
+        <div class="field">
+          <label for="notes">Notes (optional)</label>
+          <input id="notes" name="notes" maxlength="300">
+        </div>
+        <button class="btn btn-primary" type="submit">Save lift</button>
+        <p class="status" id="lift-status" role="status"></p>
+      </form>
+
+      <details class="own">
+        <summary>Add your own exercise</summary>
+        <form id="exercise-form" novalidate>
+          <div class="field">
+            <label for="new-exercise">Exercise name</label>
+            <input id="new-exercise" maxlength="80">
+          </div>
+          <button class="btn" type="submit">Add</button>
+        </form>
+        <p class="error" id="exercise-error" role="alert" style="margin-top:.75rem"></p>
+      </details>
+    </section>
+
+    <section class="panel" aria-labelledby="progress-title">
+      <div class="panel-head">
+        <h2 id="progress-title">Progress</h2>
+        <div>
+          <label for="progress-exercise" class="hint" style="margin:0 0 .2rem">Exercise</label>
+          <select id="progress-exercise"></select>
+        </div>
+      </div>
+      <dl class="stats">
+        <div class="stat pr"><dt>Best weight</dt><dd id="stat-best">–</dd></div>
+        <div class="stat"><dt>Estimated 1RM</dt><dd id="stat-1rm">–</dd></div>
+        <div class="stat"><dt>Days trained</dt><dd id="stat-days">–</dd></div>
+      </dl>
+      <div class="metric" role="group" aria-label="Chart shows">
+        <button type="button" data-metric="top_weight_kg" aria-pressed="true">Top weight</button>
+        <button type="button" data-metric="est_1rm_kg" aria-pressed="false">Estimated 1RM</button>
+      </div>
+      <div class="chart" id="chart"></div>
+    </section>
+
+    <section class="panel history" aria-labelledby="history-title">
+      <h2 id="history-title">History</h2>
+      <div class="table-wrap" id="history"></div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in — Ironhouse</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="auth-page">
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Ironhouse</a>
+      <nav class="site-nav" aria-label="Main"><a href="index.html">Back to the site</a></nav>
+    </div>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1 id="title">Log in</h1>
+
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="auth-form">Log in</button>
+        <button type="button" role="tab" id="tab-register" aria-selected="false" aria-controls="auth-form">Create account</button>
+      </div>
+
+      <form id="auth-form" novalidate>
+        <p class="error" id="error" role="alert"></p>
+
+        <div class="field" id="name-field" hidden>
+          <label for="display_name">Your name</label>
+          <input id="display_name" name="display_name" autocomplete="name" maxlength="60">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <p class="hint" id="password-hint" hidden>At least 8 characters.</p>
+        </div>
+
+        <button class="btn btn-primary" id="submit" type="submit">Log in</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
