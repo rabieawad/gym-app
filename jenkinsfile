@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("test") {
+            steps {
+                sh "python3 -m venv .venv"
+                sh ". .venv/bin/activate && pip install -r backend/requirements-dev.txt"
+                sh ". .venv/bin/activate && pytest backend/tests"
+            }
+        }
+        stage("build") {
+            steps {
+                sh "docker build -t ironhouse:${BUILD_NUMBER} ."
+            }
+        }
+    }
+}
