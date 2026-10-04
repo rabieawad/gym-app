@@ -1,17 +1,43 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE = "ghcr.io/rabieawad/gym-app"
+        TAG = "2"
+    }
+
     stages {
-        stage("test") {
+        stage("Test") {
             steps {
                 sh "python3 -m venv .venv"
                 sh ". .venv/bin/activate && pip install -r backend/requirements-dev.txt"
                 sh ". .venv/bin/activate && PYTHONPATH=backend pytest backend/tests"
             }
         }
-        stage("build") {
+
+        stage("Build") {
             steps {
-                sh "docker build -t ironhouse:2 ."
+                sh "docker build -t ${IMAGE}:${TAG} ."
+            }
+        }
+
+        stage("Push to GitHub") {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: "docker",
+                        usernameVariable: "GITHUB_USER",
+                        passwordVariable: "GITHUB_TOKEN"
+                    )
+                ]) {
+                    sh '''
+                        echo "$GITHUB_TOKEN" | docker login ghcr.io \
+                            -u "$GITHUB_USER" \
+                            --password-stdin
+
+                        docker push "$IMAGE:$TAG"
+                    '''
+                }
             }
         }
     }
