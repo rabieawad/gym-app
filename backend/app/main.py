@@ -1,16 +1,31 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from prometheus_fastapi_instrumentator import Instrumentator
+from fastapi.responses import Response
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+import time
 
 from . import models  # noqa: F401  (registers tables on Base.metadata)
 from .config import DEFAULT_SECRET, settings
 from .database import Base, SessionLocal, engine
 from .routers import all_routers
 from .seed import seed_builtin_exercises
+
+# Define Prometheus metrics
+REQUEST_COUNT = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status'],
+)
+
+REQUEST_TIME = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration in seconds',
+    ['method', 'endpoint'],
+)
 
 
 @asynccontextmanager
@@ -39,8 +54,38 @@ if settings.cors_origin_list:
         allow_headers=["*"],
     )
 
-# Add Prometheus metrics collection
-Instrumentator().instrument(app).expose(app)
+
+# Metrics middleware
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+
+    # Only track non-metrics endpoints to avoid infinite recursion
+    if request.url.path != "/metrics":
+        endpoint = request.url.path
+        REQUEST_COUNT.labels(
+            method=request.method,
+            endpoint=endpoint,
+            status=response.status_code
+        ).inc()
+
+        REQUEST_TIME.labels(
+            method=request.method,
+            endpoint=endpoint
+        ).observe(process_time)
+
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
+# Prometheus metrics endpoint
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
 
 for router in all_routers:
     app.include_router(router)
