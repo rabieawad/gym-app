@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from . import models  # noqa: F401  (registers tables on Base.metadata)
 from .config import DEFAULT_SECRET, settings
@@ -37,6 +38,9 @@ if settings.cors_origin_list:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Add Prometheus metrics collection
+Instrumentator().instrument(app).expose(app)
 
 for router in all_routers:
     app.include_router(router)
