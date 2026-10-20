@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import Response
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import time
 
 from . import models  # noqa: F401  (registers tables on Base.metadata)
@@ -15,6 +15,8 @@ from .routers import all_routers
 from .seed import seed_builtin_exercises
 
 # Define Prometheus metrics
+
+# HTTP Metrics
 REQUEST_COUNT = Counter(
     'http_requests_total',
     'Total HTTP requests',
@@ -27,6 +29,17 @@ REQUEST_TIME = Histogram(
     ['method', 'endpoint'],
 )
 
+# Business Metrics
+EXERCISES_CREATED = Counter(
+    'exercises_created_total',
+    'Total exercises created',
+)
+
+ACTIVE_USERS = Gauge(
+    'active_users',
+    'Number of active users',
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,6 +48,8 @@ async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     with SessionLocal() as db:
         seed_builtin_exercises(db)
+    # Initialize active users to 0
+    ACTIVE_USERS.set(0)
     yield
 
 
