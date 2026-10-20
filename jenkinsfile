@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE = "ghcr.io/rabieawad/gym-app"
-        TAG = "2"
+        TAG = "3"
     }
 
     stages {
